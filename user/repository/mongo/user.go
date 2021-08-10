@@ -1,6 +1,10 @@
 package mongo
 
-import "date_users_app/models"
+import (
+	"date_users_app/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+)
 
 type User struct {
 	Id         primitive.ObjectID `bson:"_id,omitempty"`
@@ -15,6 +19,12 @@ type User struct {
 
 type UserRepository struct {
 	db *mongo.Collection
+}
+
+func NewUserRepository(db *mongo.Database, collection string) *UserRepository {
+	return &UserRepository{
+		db: db.Collection(collection),
+	}
 }
 
 func toMongoUser(u *models.User) *User {

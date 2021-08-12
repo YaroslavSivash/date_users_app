@@ -28,7 +28,7 @@ type User struct {
 	BirthDate string `json:"birth_date"`
 }
 
-func Parse() {
+func parse() {
 	if err := config.Init(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
@@ -56,7 +56,7 @@ func Parse() {
 	// jsonFile's content into 'users' which we defined above
 	err = json.Unmarshal(byteValue, &users)
 	if err != nil {
-		fmt.Println(err)
+
 	}
 
 	// we iterate through every user within our users array and
@@ -77,5 +77,5 @@ func Parse() {
 }
 
 func main() {
-	Parse()
+	parse()
 }

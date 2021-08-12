@@ -21,22 +21,51 @@ type UserRepository struct {
 	db *mongo.Collection
 }
 
-func (u UserRepository) CreateUser(ctx context.Context, user *models.User) error {
-	panic("implement me")
-}
-
-func (u UserRepository) GetUsers(ctx context.Context, skip, limit int) ([]*models.User, error) {
-	panic("implement me")
-}
-
-func (u UserRepository) UpdateUser(ctx context.Context, user *models.User, id string) error {
-	panic("implement me")
-}
-
 func NewUserRepository(db *mongo.Database, collection string) *UserRepository {
 	return &UserRepository{
 		db: db.Collection(collection),
 	}
+}
+
+func (u UserRepository) CreateUser(ctx context.Context, user *models.User) error {
+	panic("implement me")
+}
+
+func (u UserRepository) GetAllUsers(ctx context.Context, skip, limit int) ([]*models.User, error) {
+
+	panic("implement me")
+}
+
+//func (r BookmarkRepository) GetBookmarks(ctx context.Context, user *models.User) ([]*models.Bookmark, error) {
+//	uid, _ := primitive.ObjectIDFromHex(user.ID)
+//	cur, err := r.db.Find(ctx, bson.M{
+//		"userId": uid,
+//	})
+//	defer cur.Close(ctx)
+//
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	out := make([]*Bookmark, 0)
+//
+//	for cur.Next(ctx) {
+//		user := new(Bookmark)
+//		err := cur.Decode(user)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		out = append(out, user)
+//	}
+//	if err := cur.Err(); err != nil {
+//		return nil, err
+//	}
+//
+//	return toBookmarks(out), nil
+//}
+func (u UserRepository) UpdateUser(ctx context.Context, user *models.User, id string) error {
+	panic("implement me")
 }
 
 func toMongoUser(u *models.User) *User {

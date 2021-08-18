@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"strconv"
 )
@@ -37,7 +37,7 @@ func (h *Handler) GetAllUsers(c *echo.Context) error {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
-	return c.String(http.StatusOK, allUsers)
+	return c.JSON(http.StatusOK, allUsers)
 }
 
 func (h *Handler) CreateUser(c *echo.Context) error {

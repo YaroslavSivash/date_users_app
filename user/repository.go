@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(ctx context.Context, user *models.User) error
-	GetUsers(ctx context.Context, skip, limit int) ([]*models.User, error)
-	UpdateUser(ctx context.Context, user *models.User, id string) error
+	CreateUserDB(ctx context.Context, user *models.User) error
+	GetAllUsersDB(ctx context.Context, skip, limit int) ([]*models.User, error)
+	UpdateUserDB(ctx context.Context, user *models.User, id string) error
 }

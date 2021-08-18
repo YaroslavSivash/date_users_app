@@ -39,7 +39,8 @@ func parse() {
 	jsonFile, err := os.Open("db_migration/users_go.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
+		return err
 	}
 
 	fmt.Println("Successfully Opened users.json")
@@ -56,6 +57,8 @@ func parse() {
 	// jsonFile's content into 'users' which we defined above
 	err = json.Unmarshal(byteValue, &users)
 	if err != nil {
+		log.Error(err)
+		return err
 
 	}
 
@@ -65,7 +68,8 @@ func parse() {
 	for _, user := range users.Objects {
 		_, err := collection.InsertOne(context.Background(), user, nil)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
+			return err
 		}
 
 		//fmt.Println("User Type: " + user.Id)

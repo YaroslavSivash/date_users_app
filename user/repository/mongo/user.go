@@ -3,8 +3,14 @@ package mongo
 import (
 	"context"
 	"date_users_app/models"
+	"github.com/labstack/gommon/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 type User struct {
@@ -27,50 +33,73 @@ func NewUserRepository(db *mongo.Database, collection string) *UserRepository {
 	}
 }
 
-func (u UserRepository) CreateUser(ctx context.Context, user *models.User) error {
-	panic("implement me")
+func (r UserRepository) CreateUserDB(ctx context.Context, user *models.User) error {
+	model := toMongoUser(user)
+	res, err := r.db.InsertOne(ctx, model)
+	if err != nil {
+		return err
+	}
+
+	user.Id = res.InsertedID.(primitive.ObjectID).Hex()
+	return nil
 }
 
-func (u UserRepository) GetAllUsers(ctx context.Context, skip, limit int) ([]*models.User, error) {
+func (r UserRepository) GetAllUsersDB(ctx context.Context, skip, limit int) ([]*models.User, error) {
+	rez := []models.User{}
 
-	panic("implement me")
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	skip, err := strconv.Atoi(c.QueryParam("skip"))
+
+	limit := int64(limit)
+	skip := int64(skip)
+
+	cursor, err := r.Find(context.Background(), bson.M{}, &options.FindOptions{
+		Limit: &limit,
+		Skip:  &skip,
+		Sort:  bson.D{{"email", 1}},
+	})
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	defer func() {
+		err = cursor.Close(context.Background())
+		if err != nil {
+			log.Error(err)
+		}
+	}()
+
+	// parse all
+	for cursor.Next(context.TODO()) {
+		var episode models.User
+		if err = cursor.Decode(&episode); err != nil {
+			log.Error(err)
+		}
+
+		result = append(result, episode)
+	}
+
+	// ---------------Find many
+
+	return &result, nil
 }
 
-//func (r BookmarkRepository) GetBookmarks(ctx context.Context, user *models.User) ([]*models.Bookmark, error) {
-//	uid, _ := primitive.ObjectIDFromHex(user.ID)
-//	cur, err := r.db.Find(ctx, bson.M{
-//		"userId": uid,
-//	})
-//	defer cur.Close(ctx)
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	out := make([]*Bookmark, 0)
-//
-//	for cur.Next(ctx) {
-//		user := new(Bookmark)
-//		err := cur.Decode(user)
-//		if err != nil {
-//			return nil, err
-//		}
-//
-//		out = append(out, user)
-//	}
-//	if err := cur.Err(); err != nil {
-//		return nil, err
-//	}
-//
-//	return toBookmarks(out), nil
-//}
-func (u UserRepository) UpdateUser(ctx context.Context, user *models.User, id string) error {
-	panic("implement me")
+}
+
+func (r UserRepository) UpdateUserDB(ctx context.Context, user *models.User, id string) error {
+
 }
 
 func toMongoUser(u *models.User) *User {
 	return &User{
-		Email: u.Email,
+
+		Email:     u.Email,
+		LastName:  u.LastName,
+		Country:   u.Country,
+		City:      u.City,
+		Gender:    u.Gender,
+		BirthDate: u.BirthDate,
 	}
 }
 

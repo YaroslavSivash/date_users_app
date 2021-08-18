@@ -15,13 +15,13 @@ func NewUserUseCase(repo user.UserRepository) *UserUseCase {
 }
 
 func (u UserUseCase) CreateUser(ctx context.Context, user *models.User) error {
-	return u.repo.CreateUser(ctx, user)
+	return u.repo.CreateUserDB(ctx, user)
 }
 
-func (u UserUseCase) GetUsers(ctx context.Context, skip, limit int) ([]*models.User, error) {
-	u.repo.GetUsers()
+func (u UserUseCase) GetAllUsers(ctx context.Context, skip, limit int) ([]*models.User, error) {
+	return u.repo.GetAllUsersDB(ctx, skip, limit)
 }
 
 func (u UserUseCase) UpdateUser(ctx context.Context, user *models.User, id string) error {
-	panic("implement me")
+	return u.repo.UpdateUserDB(ctx, user, id)
 }

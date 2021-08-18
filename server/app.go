@@ -2,42 +2,36 @@ package server
 
 import (
 	"context"
+	"date_users_app/services"
 	"date_users_app/user"
 	mongo2 "date_users_app/user/repository/mongo"
+	"fmt"
+	"date_users_app/user/delivery/http"
+	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
-	"net/http"
-	"time"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"github.com/spf13/viper"
+	"net/http"
 )
 
 type App struct {
-	httpServer *http.Server
-	usersUC	user.UseCase
+	httpServer *echo.Echo
+	usersUC    user.UseCase
 }
 
 func NewApp() *App {
-	db := initDB()
+	db := services.InitDB()
 
 	userRepo := mongo2.NewUserRepository(db, (viper.GetString("mongo.user_collection")))
-	return &App{
-
-	}
+	return &App{}
 }
 
-func (a *App) Run (port string) error{
-	a.httpServer = &http.Server{
-		Addr:           ":" + port,
-		Handler:        handler,
-		MaxHeaderBytes: 1 << 20, // 1 MB
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-	}
+func (a *App) Run(port string) error {
 
-	return a.httpServer.ListenAndServe()
-}
-
-func (a *App) Shutdown (ctx context.Context) error{
-	return a.httpServer.Shutdown(ctx)
+	e := echo.New()
+	http.RegisterHTTPEndpoints(e, a.usersUC)
+	fmt.Println("Starting server at " + port)
+	e.Logger.Fatal(e.Start(port))
+	return nil
 }

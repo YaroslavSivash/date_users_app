@@ -22,16 +22,19 @@ func NewHandler(useCase user.UseCase) *Handler {
 }
 
 func (h *Handler) GetAllUsers(c echo.Context) error {
+
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
+
 	skip, err := strconv.Atoi(c.QueryParam("skip"))
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
+
 	allUsers, err := h.useCase.GetAllUsers(c, skip, limit)
 	if err != nil {
 		log.Error(err)
@@ -41,8 +44,10 @@ func (h *Handler) GetAllUsers(c echo.Context) error {
 }
 
 func (h *Handler) CreateUser(c echo.Context) error {
-	userAdd := &models.User{}
-	err := json.NewDecoder(c.Request().Body).Decode(&userAdd)
+
+	userBody := &models.User{}
+
+	err := json.NewDecoder(c.Request().Body).Decode(&userBody)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
@@ -53,7 +58,8 @@ func (h *Handler) CreateUser(c echo.Context) error {
 			log.Error(err)
 		}
 	}()
-	userNew := h.useCase.CreateUser(c, userAdd)
+
+	userNew := h.useCase.CreateUser(c, userBody)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
@@ -62,9 +68,9 @@ func (h *Handler) CreateUser(c echo.Context) error {
 }
 
 func (h *Handler) UpdateUser(c echo.Context) error {
-	updateUser := &models.User{}
+	userBody := &models.User{}
 
-	err := json.NewDecoder(c.Request().Body).Decode(&updateUser)
+	err := json.NewDecoder(c.Request().Body).Decode(&userBody)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
@@ -75,7 +81,8 @@ func (h *Handler) UpdateUser(c echo.Context) error {
 			log.Error(err)
 		}
 	}()
-	userUp := h.useCase.UpdateUser(c, updateUser)
+
+	userUp := h.useCase.UpdateUser(c, userBody)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)

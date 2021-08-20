@@ -4,6 +4,8 @@ import (
 	"context"
 	"date_users_app/models"
 	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
+	"net/http"
 
 	//"github.com/labstack/gommon/log"
 	//"go.mongodb.org/mongo-driver/bson"
@@ -35,17 +37,17 @@ func NewUserRepository(db *mongo.Database, collection string) *UserRepository {
 }
 
 func (r UserRepository) CreateUserDB(c echo.Context, user *models.User) error {
-	model := toMongoUser(user)
-	res, err := r.db.InsertOne(context.Background(), model)
+	_, err := r.db.InsertOne(context.Background(), user)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
-
-	user.Id = res.InsertedID.(primitive.ObjectID).Hex()
-	return nil
+	return c.JSON(http.StatusOK, err)
 }
 
 func (r UserRepository) GetAllUsersDB(c echo.Context, skip, limit int) ([]*models.User, error) {
+	//sliceAllUsers := []models.User{}
+
 	return nil, nil
 }
 

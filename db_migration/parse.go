@@ -1,4 +1,4 @@
-package parse
+package main
 
 import (
 	"context"
@@ -70,11 +70,11 @@ func parse() error {
 			return err
 		}
 
-		//fmt.Println("User Type: " + user.Id)
-		//fmt.Println("User Age: " + user.LastName)
-		//fmt.Println("User Name: " + user.City)
-		//fmt.Println("Facebook Url: " + user.Country)
-
 	}
 	return nil
+}
+
+func main() {
+	parse()
+
 }

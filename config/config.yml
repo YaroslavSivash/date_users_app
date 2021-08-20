@@ -1,4 +1,5 @@
 mongo:
   uri: "mongodb://localhost:27017/"
   name: "date_user"
+  user_collection: "users"
 port: "8000"

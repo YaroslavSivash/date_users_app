@@ -1,4 +1,4 @@
-package main
+package parse
 
 import (
 	"context"
@@ -17,8 +17,6 @@ type Objects struct {
 	Objects []User `json:"objects"`
 }
 
-// User struct which contains a name
-// a type and a list of social links
 type User struct {
 	Email     string `json:"email"`
 	LastName  string `json:"last_name"`
@@ -28,7 +26,7 @@ type User struct {
 	BirthDate string `json:"birth_date"`
 }
 
-func parse() {
+func parse() error {
 	if err := config.Init(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
@@ -39,7 +37,7 @@ func parse() {
 	jsonFile, err := os.Open("db_migration/users_go.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
-		log.Error(err)
+
 		return err
 	}
 
@@ -57,7 +55,7 @@ func parse() {
 	// jsonFile's content into 'users' which we defined above
 	err = json.Unmarshal(byteValue, &users)
 	if err != nil {
-		log.Error(err)
+
 		return err
 
 	}
@@ -68,7 +66,7 @@ func parse() {
 	for _, user := range users.Objects {
 		_, err := collection.InsertOne(context.Background(), user, nil)
 		if err != nil {
-			log.Error(err)
+
 			return err
 		}
 
@@ -78,8 +76,5 @@ func parse() {
 		//fmt.Println("Facebook Url: " + user.Country)
 
 	}
-}
-
-func main() {
-	parse()
+	return nil
 }

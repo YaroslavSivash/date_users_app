@@ -1,18 +1,14 @@
 package server
 
 import (
-
 	"date_users_app/services"
 	"date_users_app/user"
-	"date_users_app/user/repository/mongo"
-	"fmt"
 	"date_users_app/user/delivery/http"
+	"date_users_app/user/repository/mongo"
+	"date_users_app/user/usecase"
 	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
+
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"net/http"
 )
 
 type App struct {
@@ -23,15 +19,16 @@ type App struct {
 func NewApp() *App {
 	db := services.InitDB()
 
-	userRepo := mongo.NewUserRepository(db, (viper.GetString("mongo.user_collection")))
-	return &App{}
+	userRepo := mongo.NewUserRepository(db, viper.GetString("mongo.user_collection"))
+	return &App{
+		usersUC: usecase.NewUserUseCase(userRepo),
+	}
 }
 
 func (a *App) Run(port string) error {
 
 	e := echo.New()
 	http.RegisterHTTPEndpoints(e, a.usersUC)
-	fmt.Println("Starting server at " + (viper.GetString(port))
-	e.Logger.Fatal(e.Start(port))
+	e.Logger.Fatal(e.Start(":" + viper.GetString("port")))
 	return nil
 }

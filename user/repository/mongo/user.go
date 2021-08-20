@@ -3,14 +3,15 @@ package mongo
 import (
 	"context"
 	"date_users_app/models"
-	"github.com/labstack/gommon/log"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/labstack/echo"
+
+	//"github.com/labstack/gommon/log"
+	//"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"strconv"
-
-	"github.com/labstack/echo/v4"
+	//"go.mongodb.org/mongo-driver/mongo/options"
+	//"strconv"
+	//"github.com/labstack/echo/v4"
 )
 
 type User struct {
@@ -33,9 +34,9 @@ func NewUserRepository(db *mongo.Database, collection string) *UserRepository {
 	}
 }
 
-func (r UserRepository) CreateUserDB(ctx context.Context, user *models.User) error {
+func (r UserRepository) CreateUserDB(c echo.Context, user *models.User) error {
 	model := toMongoUser(user)
-	res, err := r.db.InsertOne(ctx, model)
+	res, err := r.db.InsertOne(context.Background(), model)
 	if err != nil {
 		return err
 	}
@@ -44,56 +45,20 @@ func (r UserRepository) CreateUserDB(ctx context.Context, user *models.User) err
 	return nil
 }
 
-func (r UserRepository) GetAllUsersDB(ctx context.Context, skip, limit int) ([]*models.User, error) {
-	rez := []models.User{}
-
-	limit, err := strconv.Atoi(c.QueryParam("limit"))
-	skip, err := strconv.Atoi(c.QueryParam("skip"))
-
-	limit := int64(limit)
-	skip := int64(skip)
-
-	cursor, err := r.Find(context.Background(), bson.M{}, &options.FindOptions{
-		Limit: &limit,
-		Skip:  &skip,
-		Sort:  bson.D{{"email", 1}},
-	})
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	defer func() {
-		err = cursor.Close(context.Background())
-		if err != nil {
-			log.Error(err)
-		}
-	}()
-
-	// parse all
-	for cursor.Next(context.TODO()) {
-		var episode models.User
-		if err = cursor.Decode(&episode); err != nil {
-			log.Error(err)
-		}
-
-		result = append(result, episode)
-	}
-
-	// ---------------Find many
-
-	return &result, nil
+func (r UserRepository) GetAllUsersDB(c echo.Context, skip, limit int) ([]*models.User, error) {
+	return nil, nil
 }
 
-}
-
-func (r UserRepository) UpdateUserDB(ctx context.Context, user *models.User, id string) error {
-
+func (r UserRepository) UpdateUserDB(c echo.Context, user *models.User) error {
+	//filter := bson.D{{"_id", user.Id}}
+	return nil
+	//user := r.db.InsertOne(context.Background(), filter)
 }
 
 func toMongoUser(u *models.User) *User {
+	uid, _ := primitive.ObjectIDFromHex(u.Id)
 	return &User{
-
+		Id:        uid,
 		Email:     u.Email,
 		LastName:  u.LastName,
 		Country:   u.Country,

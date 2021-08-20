@@ -21,18 +21,18 @@ func NewHandler(useCase user.UseCase) *Handler {
 	}
 }
 
-func (h *Handler) GetAllUsers(c *echo.Context) error {
-	_, err := strconv.Atoi(c.QueryParam("limit"))
+func (h *Handler) GetAllUsers(c echo.Context) error {
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
-	_, err := strconv.Atoi(c.QueryParam("skip"))
+	skip, err := strconv.Atoi(c.QueryParam("skip"))
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
-	allUsers, err := h.useCase.GetAllUsers(c)
+	allUsers, err := h.useCase.GetAllUsers(c, skip, limit)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
@@ -40,9 +40,9 @@ func (h *Handler) GetAllUsers(c *echo.Context) error {
 	return c.JSON(http.StatusOK, allUsers)
 }
 
-func (h *Handler) CreateUser(c *echo.Context) error {
-	user := &models.User{}
-	err := json.NewDecoder(c.Request().Body).Decode(&user)
+func (h *Handler) CreateUser(c echo.Context) error {
+	userAdd := &models.User{}
+	err := json.NewDecoder(c.Request().Body).Decode(&userAdd)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
@@ -53,9 +53,32 @@ func (h *Handler) CreateUser(c *echo.Context) error {
 			log.Error(err)
 		}
 	}()
-
+	userNew := h.useCase.CreateUser(c, userAdd)
+	if err != nil {
+		log.Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
+	}
+	return c.JSON(http.StatusOK, userNew)
 }
 
-func (h *Handler) UpdateUser(c *echo.Context) error {
+func (h *Handler) UpdateUser(c echo.Context) error {
+	updateUser := &models.User{}
 
+	err := json.NewDecoder(c.Request().Body).Decode(&updateUser)
+	if err != nil {
+		log.Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
+	}
+	defer func() {
+		err = c.Request().Body.Close()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
+	userUp := h.useCase.UpdateUser(c, updateUser)
+	if err != nil {
+		log.Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
+	}
+	return c.JSON(http.StatusOK, userUp)
 }

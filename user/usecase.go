@@ -1,12 +1,12 @@
 package user
 
 import (
-	"context"
 	"date_users_app/models"
+	"github.com/labstack/echo"
 )
 
 type UseCase interface {
-	CreateUser(ctx context.Context, user *models.User) error
-	GetAllUsers(ctx context.Context, skip, limit int) ([]*models.User, error)
-	UpdateUser(ctx context.Context, user *models.User, id string) error
+	CreateUser(c echo.Context, user *models.User) error
+	GetAllUsers(c echo.Context, skip, limit int) ([]*models.User, error)
+	UpdateUser(c echo.Context, user *models.User) error
 }

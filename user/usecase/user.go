@@ -18,8 +18,8 @@ func (u UserUseCase) CreateUser(c echo.Context, user *models.User) error {
 	return u.repo.CreateUserDB(c, user)
 }
 
-func (u UserUseCase) GetAllUsers(c echo.Context, skip, limit int) ([]*models.User, error) {
-	return u.repo.GetAllUsersDB(c, skip, limit)
+func (u UserUseCase) GetAllUsers(c echo.Context, perPage, page int) ([]*models.User, error) {
+	return u.repo.GetAllUsersDB(c, perPage, page)
 }
 
 func (u UserUseCase) UpdateUser(c echo.Context, user *models.User) error {

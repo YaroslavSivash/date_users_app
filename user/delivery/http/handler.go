@@ -23,19 +23,19 @@ func NewHandler(useCase user.UseCase) *Handler {
 
 func (h *Handler) GetAllUsers(c echo.Context) error {
 
-	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	page, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
 
-	skip, err := strconv.Atoi(c.QueryParam("skip"))
+	perPage, err := strconv.Atoi(c.QueryParam("skip"))
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)
 	}
 
-	allUsers, err := h.useCase.GetAllUsers(c, skip, limit)
+	allUsers, err := h.useCase.GetAllUsers(c, perPage, page)
 	if err != nil {
 		log.Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error)

@@ -5,13 +5,15 @@ import (
 	"date_users_app/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
+	"strings"
 
 	//"github.com/labstack/gommon/log"
-	//"go.mongodb.org/mongo-driver/bson"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	//"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	//"strconv"
 	//"github.com/labstack/echo/v4"
 )
@@ -37,6 +39,7 @@ func NewUserRepository(db *mongo.Database, collection string) *UserRepository {
 }
 
 func (r UserRepository) CreateUserDB(c echo.Context, user *models.User) error {
+
 	_, err := r.db.InsertOne(context.Background(), user)
 	if err != nil {
 		log.Error(err)
@@ -45,39 +48,71 @@ func (r UserRepository) CreateUserDB(c echo.Context, user *models.User) error {
 	return c.JSON(http.StatusOK, err)
 }
 
-func (r UserRepository) GetAllUsersDB(c echo.Context, skip, limit int) ([]*models.User, error) {
+func (r UserRepository) GetAllUsersDB(c echo.Context, perPage, page int) ([]*models.User, error) {
 	//sliceAllUsers := []models.User{}
+	findOptions := options.Find()
+	filter := bson.M{}
+	limit := int64(perPage)
 
-	return nil, nil
+	skip := int64(page)
+	findOptions.SetSkip((int64(skip) - 1) * limit)
+	findOptions.SetLimit(limit)
+
+	cursor, _ := r.db.Find(context.Background(), filter, findOptions)
+	defer cursor.Close(context.Background())
+
+	out := []*models.User{}
+
+	for cursor.Next(context.Background()) {
+		var user *models.User
+		cursor.Decode(&user)
+		out = append(out, user)
+	}
+
+	return out, nil
 }
 
 func (r UserRepository) UpdateUserDB(c echo.Context, user *models.User) error {
-	//filter := bson.D{{"_id", user.Id}}
-	return nil
-	//user := r.db.InsertOne(context.Background(), filter)
-}
+	filter := bson.D{{"_id", user.Id}}
 
-func toMongoUser(u *models.User) *User {
-	uid, _ := primitive.ObjectIDFromHex(u.Id)
-	return &User{
-		Id:        uid,
-		Email:     u.Email,
-		LastName:  u.LastName,
-		Country:   u.Country,
-		City:      u.City,
-		Gender:    u.Gender,
-		BirthDate: u.BirthDate,
+	userFind := models.User{}
+	err := r.db.FindOne(context.Background(), filter).Decode(&userFind)
+	if err != nil {
+		log.Error(err)
+		return err
 	}
-}
+	if strings.TrimSpace(user.Email) != "" {
+		userFind.Email = user.Email
+	}
+	if strings.TrimSpace(user.LastName) != "" {
+		userFind.LastName = user.LastName
+	}
+	if strings.TrimSpace(user.Country) != "" {
+		userFind.Country = user.Country
+	}
+	if strings.TrimSpace(user.City) != "" {
+		userFind.City = user.City
+	}
+	if strings.TrimSpace(user.Gender) != "" {
+		userFind.Gender = user.Gender
+	}
+	if strings.TrimSpace(user.BirthDate) != "" {
+		userFind.BirthDate = user.BirthDate
+	}
 
-func toModel(u *User) *models.User {
-	return &models.User{
-		Id:        u.Id.Hex(),
-		Email:     u.Email,
-		LastName:  u.LastName,
-		Country:   u.Country,
-		City:      u.City,
-		Gender:    u.Gender,
-		BirthDate: u.BirthDate,
+	UpdateUser := bson.M{"$set": bson.M{
+		"email":     userFind.Email,
+		"lastname":  userFind.LastName,
+		"country":   userFind.Country,
+		"city":      userFind.City,
+		"gender":    userFind.Gender,
+		"birthdate": userFind.BirthDate,
+	},
 	}
+	_, err = r.db.UpdateOne(context.Background(), filter, UpdateUser)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return c.JSON(http.StatusOK, err)
 }

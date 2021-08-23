@@ -7,6 +7,6 @@ import (
 
 type UseCase interface {
 	CreateUser(c echo.Context, user *models.User) error
-	GetAllUsers(c echo.Context, skip, limit int) ([]*models.User, error)
+	GetAllUsers(c echo.Context, perPage, page int) ([]*models.User, error)
 	UpdateUser(c echo.Context, user *models.User) error
 }
